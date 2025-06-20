@@ -1,6 +1,20 @@
 # Node.js 18 Alpine imajını temel al
 FROM node:18-alpine
 
+# Puppeteer için gerekli bağımlılıkları yükle
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
+# Puppeteer'ın Chrome'u kullanması için ortam değişkenlerini ayarla
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
 # Çalışma dizinini belirle
 WORKDIR /app
 
