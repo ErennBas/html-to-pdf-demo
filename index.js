@@ -43,9 +43,26 @@ app.get("/generate-pdf", async (req, res) => {
 				left: "20px",
 			},
 			printBackground: true,
+			args: [
+				"--no-sandbox",
+				"--disable-setuid-sandbox",
+				"--disable-dev-shm-usage",
+				"--disable-gpu",
+				"--no-first-run",
+				"--no-zygote",
+				"--single-process",
+				"--disable-extensions",
+			],
 		};
+
 		const file = { content: htmlContent };
-		const pdfBuffer = await htmlPdfNode.generatePdf(file, options);
+
+		const pdfBuffer = await Promise.race([
+			htmlPdfNode.generatePdf(file, options),
+			new Promise((_, reject) =>
+				setTimeout(() => reject(new Error("PDF oluşturma zaman aşımı")), 30000)
+			),
+		]);
 
 		res.setHeader("Content-Type", "application/pdf");
 		res.setHeader(
@@ -55,7 +72,10 @@ app.get("/generate-pdf", async (req, res) => {
 		res.send(pdfBuffer);
 	} catch (error) {
 		console.error("PDF oluşturma hatası:", error);
-		res.status(500).json({ error: "PDF oluşturulamadı" });
+		res.status(500).json({
+			error: "PDF oluşturulamadı",
+			details: error.message,
+		});
 	}
 });
 
