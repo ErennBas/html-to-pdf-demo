@@ -1,29 +1,55 @@
 # Node.js 18 Alpine imajını temel al
 FROM node:18-alpine
 
-# Puppeteer için gerekli bağımlılıkları yükle
+# Chromium ve gerekli fontları Alpine için kur
 RUN apk add --no-cache \
     chromium \
     nss \
     freetype \
-    freetype-dev \
     harfbuzz \
-    ca-certificates \
     ttf-freefont \
-    dumb-init
+    ca-certificates \
+    dbus \
+    expat \
+    fontconfig \
+    glib \
+    gtk+3.0 \
+    libx11 \
+    libxcomposite \
+    libxcursor \
+    libxdamage \
+    libxext \
+    libxi \
+    libxrandr \
+    libxrender \
+    libxtst \
+    cups \
+    alsa-lib \
+    at-spi2-core \
+    cairo \
+    pango \
+    gdk-pixbuf \
+    && mkdir /app
 
-# Puppeteer'ın Chrome'u kullanması için ortam değişkenlerini ayarla
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser \
-    CHROME_BIN=/usr/bin/chromium-browser \
-    CHROME_PATH=/usr/bin/chromium-browser
+WORKDIR /app
 
-# Chrome için güvenlik ayarları
-ENV CHROME_HEADLESS=true \
-    CHROME_NO_SANDBOX=true \
-    CHROME_DISABLE_GPU=true \
-    CHROME_DISABLE_DEV_SHM_USAGE=true
+# Puppeteer için gerekli ortam değişkenleri
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV CHROME_BIN=/usr/bin/chromium-browser
+ENV CHROME_PATH=/usr/lib/chromium/
 
+
+# Node kullanıcısını oluştur ve Puppeteer için gerekli izinleri ayarla
+RUN addgroup -S node && \
+    adduser -S node -G node && \
+    mkdir -p /home/node && \
+    chown -R node:node /home/node && \
+    chmod -R 777 /home/node && \
+    mkdir -p /tmp/puppeteer && \
+    chmod -R 777 /tmp/puppeteer
+
+# Paket dosyalarını kopyala ve bağımlılıkları yükle
 # Çalışma dizinini belirle
 WORKDIR /app
 

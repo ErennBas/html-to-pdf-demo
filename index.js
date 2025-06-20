@@ -1,9 +1,157 @@
 const express = require("express");
-const htmlPdfNode = require("html-pdf-node");
+const puppeteer = require("puppeteer");
 const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Puppeteer browser instance'ını global olarak tut
+let browser = null;
+
+// Browser'ı başlat
+async function initBrowser() {
+	try {
+		browser = await puppeteer.launch({
+			executablePath:
+				process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
+			headless: "new", // Yeni headless modu
+			userDataDir: "/tmp/puppeteer", // Geçici dizin
+			args: [
+				"--no-sandbox",
+				"--disable-setuid-sandbox",
+				"--disable-dev-shm-usage",
+				"--disable-gpu",
+				"--no-first-run",
+				"--no-zygote",
+				"--single-process",
+				"--disable-extensions",
+				"--disable-background-timer-throttling",
+				"--disable-backgrounding-occluded-windows",
+				"--disable-renderer-backgrounding",
+				"--disable-features=TranslateUI",
+				"--disable-ipc-flooding-protection",
+				"--memory-pressure-off",
+				"--max_old_space_size=2048",
+				"--disable-web-security",
+				"--disable-features=VizDisplayCompositor",
+				"--disable-software-rasterizer",
+				"--disable-background-networking",
+				"--disable-default-apps",
+				"--disable-sync",
+				"--disable-translate",
+				"--hide-scrollbars",
+				"--mute-audio",
+				"--no-default-browser-check",
+				"--safebrowsing-disable-auto-update",
+				"--disable-client-side-phishing-detection",
+				"--disable-component-update",
+				"--disable-domain-reliability",
+				"--disable-features=AudioServiceOutOfProcess",
+				"--disable-hang-monitor",
+				"--disable-prompt-on-repost",
+				"--disable-background-timer-throttling",
+				"--disable-renderer-backgrounding",
+				"--disable-backgrounding-occluded-windows",
+				"--disable-features=TranslateUI",
+				"--disable-ipc-flooding-protection",
+				"--disable-background-networking",
+				"--disable-default-apps",
+				"--disable-sync",
+				"--disable-translate",
+				"--hide-scrollbars",
+				"--mute-audio",
+				"--no-default-browser-check",
+				"--safebrowsing-disable-auto-update",
+				"--disable-client-side-phishing-detection",
+				"--disable-component-update",
+				"--disable-domain-reliability",
+				"--disable-features=AudioServiceOutOfProcess",
+				"--disable-hang-monitor",
+				"--disable-prompt-on-repost",
+				"--disable-xvfb", // X11 display server'ı devre dışı bırak
+				"--disable-3d-apis",
+				"--disable-accelerated-2d-canvas",
+				"--disable-accelerated-jpeg-decoding",
+				"--disable-accelerated-mjpeg-decode",
+				"--disable-accelerated-video-decode",
+				"--disable-accelerated-video-encode",
+				"--disable-gpu-compositing",
+				"--disable-gpu-rasterization",
+				"--disable-gpu-sandbox",
+				"--disable-software-rasterizer",
+				"--disable-threaded-animation",
+				"--disable-threaded-scrolling",
+				"--disable-webgl",
+				"--disable-webgl2",
+				"--disable-webgl-image-chromium",
+				"--disable-webgl-draft-extensions",
+				"--disable-webgl-vendor-info",
+				"--disable-webgl-errors",
+				"--disable-webgl-errors-console",
+				"--disable-webgl-errors-reporter",
+				"--disable-webgl-errors-reporter-console",
+				"--disable-webgl-errors-reporter-console-log",
+				"--disable-webgl-errors-reporter-console-warn",
+				"--disable-webgl-errors-reporter-console-error",
+				"--disable-webgl-errors-reporter-console-info",
+				"--disable-webgl-errors-reporter-console-debug",
+				"--disable-webgl-errors-reporter-console-trace",
+				"--disable-webgl-errors-reporter-console-assert",
+				"--disable-webgl-errors-reporter-console-count",
+				"--disable-webgl-errors-reporter-console-countReset",
+				"--disable-webgl-errors-reporter-console-group",
+				"--disable-webgl-errors-reporter-console-groupCollapsed",
+				"--disable-webgl-errors-reporter-console-groupEnd",
+				"--disable-webgl-errors-reporter-console-time",
+				"--disable-webgl-errors-reporter-console-timeEnd",
+				"--disable-webgl-errors-reporter-console-timeLog",
+				"--disable-webgl-errors-reporter-console-profile",
+				"--disable-webgl-errors-reporter-console-profileEnd",
+				"--disable-webgl-errors-reporter-console-table",
+				"--disable-webgl-errors-reporter-console-trace",
+				"--disable-webgl-errors-reporter-console-warn",
+				"--disable-webgl-errors-reporter-console-error",
+				"--disable-webgl-errors-reporter-console-info",
+				"--disable-webgl-errors-reporter-console-debug",
+				"--disable-webgl-errors-reporter-console-trace",
+				"--disable-webgl-errors-reporter-console-assert",
+				"--disable-webgl-errors-reporter-console-count",
+				"--disable-webgl-errors-reporter-console-countReset",
+				"--disable-webgl-errors-reporter-console-group",
+				"--disable-webgl-errors-reporter-console-groupCollapsed",
+				"--disable-webgl-errors-reporter-console-groupEnd",
+				"--disable-webgl-errors-reporter-console-time",
+				"--disable-webgl-errors-reporter-console-timeEnd",
+				"--disable-webgl-errors-reporter-console-timeLog",
+				"--disable-webgl-errors-reporter-console-profile",
+				"--disable-webgl-errors-reporter-console-profileEnd",
+				"--disable-webgl-errors-reporter-console-table",
+			],
+		});
+		console.log("✅ Browser başarıyla başlatıldı (Headless mod)");
+	} catch (error) {
+		console.error("❌ Browser başlatılamadı:", error);
+		throw error;
+	}
+}
+
+// Uygulama başladığında browser'ı başlat
+initBrowser();
+
+// Uygulama kapanırken browser'ı kapat
+process.on("SIGINT", async () => {
+	if (browser) {
+		await browser.close();
+	}
+	process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+	if (browser) {
+		await browser.close();
+	}
+	process.exit(0);
+});
 
 const invoiceData = {
 	invoiceNumber: "INV-2024-001",
@@ -26,15 +174,58 @@ const invoiceData = {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Browser durumunu kontrol et
+app.get("/browser-status", (req, res) => {
+	res.json({
+		browserRunning: browser !== null,
+		browserConnected: browser ? browser.connected : false,
+		timestamp: new Date().toISOString(),
+		uptime: process.uptime(),
+		memoryUsage: process.memoryUsage(),
+		platform: process.platform,
+		nodeVersion: process.version,
+		chromePath:
+			process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
+		userDataDir: "/tmp/puppeteer",
+		headlessMode: "new",
+		environment: {
+			PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:
+				process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD,
+			CHROME_BIN: process.env.CHROME_BIN,
+			CHROME_PATH: process.env.CHROME_PATH,
+		},
+	});
+});
+
 app.get("/", (req, res) => {
 	res.send(generateInvoiceHTML(invoiceData));
 });
 
 app.get("/generate-pdf", async (req, res) => {
 	try {
+		// Browser'ın hazır olup olmadığını kontrol et
+		if (!browser) {
+			console.log("🔄 Browser henüz hazır değil, yeniden başlatılıyor...");
+			await initBrowser();
+
+			// Browser'ın başlaması için biraz bekle
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+
+			if (!browser) {
+				throw new Error("Browser başlatılamadı");
+			}
+		}
+
 		const htmlContent = generateInvoiceHTML(invoiceData, true);
 
-		const options = {
+		// Yeni sayfa oluştur
+		const page = await browser.newPage();
+
+		// Sayfa ayarlarını yap
+		await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+
+		// PDF oluştur
+		const pdfBuffer = await page.pdf({
 			format: "A4",
 			margin: {
 				top: "20px",
@@ -43,26 +234,10 @@ app.get("/generate-pdf", async (req, res) => {
 				left: "20px",
 			},
 			printBackground: true,
-			args: [
-				"--no-sandbox",
-				"--disable-setuid-sandbox",
-				"--disable-dev-shm-usage",
-				"--disable-gpu",
-				"--no-first-run",
-				"--no-zygote",
-				"--single-process",
-				"--disable-extensions",
-			],
-		};
+		});
 
-		const file = { content: htmlContent };
-
-		const pdfBuffer = await Promise.race([
-			htmlPdfNode.generatePdf(file, options),
-			new Promise((_, reject) =>
-				setTimeout(() => reject(new Error("PDF oluşturma zaman aşımı")), 30000)
-			),
-		]);
+		// Sayfayı kapat
+		await page.close();
 
 		res.setHeader("Content-Type", "application/pdf");
 		res.setHeader(
@@ -70,8 +245,22 @@ app.get("/generate-pdf", async (req, res) => {
 			`attachment; filename="fatura-${invoiceData.invoiceNumber}.pdf"`
 		);
 		res.send(pdfBuffer);
+
+		console.log("✅ PDF başarıyla oluşturuldu");
 	} catch (error) {
-		console.error("PDF oluşturma hatası:", error);
+		console.error("❌ PDF oluşturma hatası:", error);
+
+		// Browser'ı yeniden başlatmayı dene
+		if (browser) {
+			try {
+				await browser.close();
+				browser = null;
+				console.log("🔄 Browser kapatıldı, yeniden başlatılacak...");
+			} catch (closeError) {
+				console.error("Browser kapatma hatası:", closeError);
+			}
+		}
+
 		res.status(500).json({
 			error: "PDF oluşturulamadı",
 			details: error.message,
@@ -263,4 +452,13 @@ app.listen(PORT, () => {
 	console.log(
 		`PDF indirme endpoint: GET http://localhost:${PORT}/generate-pdf`
 	);
+	console.log(`Browser durumu: GET http://localhost:${PORT}/browser-status`);
+	console.log(`Platform: ${process.platform} | Node.js: ${process.version}`);
+	console.log(`Headless Chrome modu aktif (Alpine Linux)`);
+	console.log(
+		`Chrome Path: ${
+			process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser"
+		}`
+	);
+	console.log(`User Data Dir: /tmp/puppeteer`);
 });
