@@ -2,17 +2,21 @@
 	"name": "html-to-pdf",
 	"version": "1.0.0",
 	"main": "index.js",
+	"type": "module",
 	"scripts": {
-		"start": "node index.js",
+		"start": "bun run index.js",
+		"dev": "bun --watch index.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"type": "commonjs",
 	"description": "",
 	"dependencies": {
 		"express": "^5.1.0",
 		"puppeteer": "^21.0.0"
+	},
+	"engines": {
+		"bun": ">=1.0.0"
 	}
 }

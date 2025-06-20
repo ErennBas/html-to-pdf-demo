@@ -1,0 +1,18 @@
+[install]
+# Production dependencies only
+production = false
+
+[install.cache]
+# Cache directory
+dir = ".bun"
+
+[run]
+# Bun runtime options
+bun = true
+
+[test]
+# Test configuration
+preload = []
+
+[install.scopes]
+# Scope configuration 

@@ -1,6 +1,5 @@
-const express = require("express");
-const puppeteer = require("puppeteer");
-const path = require("path");
+import express from "express";
+import puppeteer from "puppeteer";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -447,18 +446,22 @@ function generateInvoiceHTML(data, isPdf = false) {
 }
 
 app.listen(PORT, () => {
-	console.log(`Server http://localhost:${PORT} adresinde çalışıyor`);
-	console.log(`Fatura görüntüleme: http://localhost:${PORT}`);
 	console.log(
-		`PDF indirme endpoint: GET http://localhost:${PORT}/generate-pdf`
+		`🚀 Server http://localhost:${PORT} adresinde çalışıyor (Bun Runtime)`
 	);
-	console.log(`Browser durumu: GET http://localhost:${PORT}/browser-status`);
-	console.log(`Platform: ${process.platform} | Node.js: ${process.version}`);
-	console.log(`Headless Chrome modu aktif (Alpine Linux)`);
+	console.log(`📄 Fatura görüntüleme: http://localhost:${PORT}`);
 	console.log(
-		`Chrome Path: ${
+		`📥 PDF indirme endpoint: GET http://localhost:${PORT}/generate-pdf`
+	);
+	console.log(`🔍 Browser durumu: GET http://localhost:${PORT}/browser-status`);
+	console.log(
+		`⚡ Runtime: Bun | Platform: ${process.platform} | Node.js: ${process.version}`
+	);
+	console.log(`🎯 Headless Chrome modu aktif (Alpine Linux)`);
+	console.log(
+		`🔧 Chrome Path: ${
 			process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser"
 		}`
 	);
-	console.log(`User Data Dir: /tmp/puppeteer`);
+	console.log(`📁 User Data Dir: /tmp/puppeteer`);
 });

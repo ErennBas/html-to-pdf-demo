@@ -1,5 +1,4 @@
-# Node.js 18 Alpine imajını temel al
-FROM node:18-alpine
+FROM oven/bun:alpine
 
 # Chromium ve gerekli fontları Alpine için kur
 RUN apk add --no-cache \
@@ -50,21 +49,14 @@ RUN addgroup -S node && \
     chmod -R 777 /tmp/puppeteer
 
 # Paket dosyalarını kopyala ve bağımlılıkları yükle
-# Çalışma dizinini belirle
-WORKDIR /app
+COPY package.json bun.lockb* ./
+RUN bun install
 
-# package.json ve package-lock.json dosyalarını kopyala
-COPY package*.json ./
-
-# Bağımlılıkları yükle
-RUN npm install
-
-# Uygulama kodlarını kopyala
+# Kaynak kodunu kopyala
 COPY . .
 
-# Port 3000'i expose et
-EXPOSE 3000
+# Portu aç
+EXPOSE 4000
 
-# dumb-init ile uygulamayı başlat (daha iyi process yönetimi)
-ENTRYPOINT ["dumb-init", "--"]
-CMD ["npm", "start"] 
+# Uygulamayı başlat
+CMD ["bun", "src/index.ts"]
