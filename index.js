@@ -12,7 +12,8 @@ async function initBrowser() {
 	try {
 		browser = await puppeteer.launch({
 			executablePath:
-				process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
+				process.env.PUPPETEER_EXECUTABLE_PATH ||
+				"/usr/bin/google-chrome-stable",
 			headless: "new", // Yeni headless modu
 			userDataDir: "/tmp/puppeteer", // Geçici dizin
 			args: [
@@ -34,25 +35,6 @@ async function initBrowser() {
 				"--disable-web-security",
 				"--disable-features=VizDisplayCompositor",
 				"--disable-software-rasterizer",
-				"--disable-background-networking",
-				"--disable-default-apps",
-				"--disable-sync",
-				"--disable-translate",
-				"--hide-scrollbars",
-				"--mute-audio",
-				"--no-default-browser-check",
-				"--safebrowsing-disable-auto-update",
-				"--disable-client-side-phishing-detection",
-				"--disable-component-update",
-				"--disable-domain-reliability",
-				"--disable-features=AudioServiceOutOfProcess",
-				"--disable-hang-monitor",
-				"--disable-prompt-on-repost",
-				"--disable-background-timer-throttling",
-				"--disable-renderer-backgrounding",
-				"--disable-backgrounding-occluded-windows",
-				"--disable-features=TranslateUI",
-				"--disable-ipc-flooding-protection",
 				"--disable-background-networking",
 				"--disable-default-apps",
 				"--disable-sync",
@@ -127,7 +109,7 @@ async function initBrowser() {
 				"--disable-webgl-errors-reporter-console-table",
 			],
 		});
-		console.log("✅ Browser başarıyla başlatıldı (Headless mod)");
+		console.log("✅ Browser başarıyla başlatıldı (Ubuntu + Bun)");
 	} catch (error) {
 		console.error("❌ Browser başlatılamadı:", error);
 		throw error;
@@ -184,9 +166,11 @@ app.get("/browser-status", (req, res) => {
 		platform: process.platform,
 		nodeVersion: process.version,
 		chromePath:
-			process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
+			process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/google-chrome-stable",
 		userDataDir: "/tmp/puppeteer",
 		headlessMode: "new",
+		runtime: "Bun",
+		os: "Ubuntu",
 		environment: {
 			PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:
 				process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD,
@@ -447,7 +431,7 @@ function generateInvoiceHTML(data, isPdf = false) {
 
 app.listen(PORT, () => {
 	console.log(
-		`🚀 Server http://localhost:${PORT} adresinde çalışıyor (Bun Runtime)`
+		`🚀 Server http://localhost:${PORT} adresinde çalışıyor (Ubuntu + Bun)`
 	);
 	console.log(`📄 Fatura görüntüleme: http://localhost:${PORT}`);
 	console.log(
@@ -455,12 +439,12 @@ app.listen(PORT, () => {
 	);
 	console.log(`🔍 Browser durumu: GET http://localhost:${PORT}/browser-status`);
 	console.log(
-		`⚡ Runtime: Bun | Platform: ${process.platform} | Node.js: ${process.version}`
+		`⚡ Runtime: Bun | OS: Ubuntu | Platform: ${process.platform} | Node.js: ${process.version}`
 	);
-	console.log(`🎯 Headless Chrome modu aktif (Alpine Linux)`);
+	console.log(`🎯 Headless Chrome modu aktif (Google Chrome Stable)`);
 	console.log(
 		`🔧 Chrome Path: ${
-			process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser"
+			process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/google-chrome-stable"
 		}`
 	);
 	console.log(`📁 User Data Dir: /tmp/puppeteer`);

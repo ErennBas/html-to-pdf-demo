@@ -1,52 +1,48 @@
-FROM oven/bun:alpine
+# Ubuntu tabanlı Bun imajını kullan
+FROM oven/bun:1-ubuntu
 
-# Chromium ve gerekli fontları Alpine için kur
-RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ttf-freefont \
+# Sistem paketlerini güncelle ve gerekli bağımlılıkları yükle
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
     ca-certificates \
-    dbus \
-    expat \
-    fontconfig \
-    glib \
-    gtk+3.0 \
-    libx11 \
-    libxcomposite \
-    libxcursor \
-    libxdamage \
-    libxext \
-    libxi \
-    libxrandr \
-    libxrender \
-    libxtst \
-    cups \
-    alsa-lib \
-    at-spi2-core \
-    cairo \
-    pango \
-    gdk-pixbuf \
-    && mkdir /app
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libatspi2.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libxss1 \
+    libxtst6 \
+    xvfb \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Google Chrome'u yükle
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
 
 # Puppeteer için gerekli ortam değişkenleri
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-ENV CHROME_BIN=/usr/bin/chromium-browser
-ENV CHROME_PATH=/usr/lib/chromium/
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+ENV CHROME_BIN=/usr/bin/google-chrome-stable
+ENV CHROME_PATH=/usr/bin/google-chrome-stable
 
+# Çalışma dizinini oluştur
+WORKDIR /app
 
-# Node kullanıcısını oluştur ve Puppeteer için gerekli izinleri ayarla
-RUN addgroup -S node && \
-    adduser -S node -G node && \
-    mkdir -p /home/node && \
-    chown -R node:node /home/node && \
-    chmod -R 777 /home/node && \
-    mkdir -p /tmp/puppeteer && \
-    chmod -R 777 /tmp/puppeteer
+# Puppeteer için geçici dizin oluştur
+RUN mkdir -p /tmp/puppeteer && chmod -R 777 /tmp/puppeteer
 
 # Paket dosyalarını kopyala ve bağımlılıkları yükle
 COPY package.json bun.lockb* ./
