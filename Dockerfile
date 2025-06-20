@@ -59,4 +59,4 @@ COPY . .
 EXPOSE 4000
 
 # Uygulamayı başlat
-CMD ["bun", "src/index.ts"]
+CMD ["bun", "index.js"]
