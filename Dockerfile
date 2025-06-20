@@ -1,8 +1,10 @@
-# Ubuntu tabanlı Bun imajını kullan
-FROM oven/bun:1-ubuntu
+# Ubuntu 22.04 LTS tabanlı imaj kullan
+FROM ubuntu:22.04
 
 # Sistem paketlerini güncelle ve gerekli bağımlılıkları yükle
 RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
     wget \
     gnupg \
     ca-certificates \
@@ -25,6 +27,11 @@ RUN apt-get update && apt-get install -y \
     xvfb \
     && rm -rf /var/lib/apt/lists/*
 
+# Node.js 18 LTS'i yükle
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
+
 # Google Chrome'u yükle
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
@@ -45,14 +52,14 @@ WORKDIR /app
 RUN mkdir -p /tmp/puppeteer && chmod -R 777 /tmp/puppeteer
 
 # Paket dosyalarını kopyala ve bağımlılıkları yükle
-COPY package.json bun.lockb* ./
-RUN bun install
+COPY package*.json ./
+RUN npm ci --only=production
 
 # Kaynak kodunu kopyala
 COPY . .
 
 # Portu aç
-EXPOSE 4000
+EXPOSE 3000
 
 # Uygulamayı başlat
-CMD ["bun", "index.js"]
+CMD ["npm", "start"]

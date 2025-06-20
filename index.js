@@ -1,5 +1,5 @@
-import express from "express";
-import puppeteer from "puppeteer";
+const express = require("express");
+const puppeteer = require("puppeteer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -109,7 +109,7 @@ async function initBrowser() {
 				"--disable-webgl-errors-reporter-console-table",
 			],
 		});
-		console.log("✅ Browser başarıyla başlatıldı (Ubuntu + Bun)");
+		console.log("✅ Browser başarıyla başlatıldı (Ubuntu + Node.js)");
 	} catch (error) {
 		console.error("❌ Browser başlatılamadı:", error);
 		throw error;
@@ -169,7 +169,7 @@ app.get("/browser-status", (req, res) => {
 			process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/google-chrome-stable",
 		userDataDir: "/tmp/puppeteer",
 		headlessMode: "new",
-		runtime: "Bun",
+		runtime: "Node.js",
 		os: "Ubuntu",
 		environment: {
 			PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:
@@ -431,7 +431,7 @@ function generateInvoiceHTML(data, isPdf = false) {
 
 app.listen(PORT, () => {
 	console.log(
-		`🚀 Server http://localhost:${PORT} adresinde çalışıyor (Ubuntu + Bun)`
+		`🚀 Server http://localhost:${PORT} adresinde çalışıyor (Ubuntu + Node.js)`
 	);
 	console.log(`📄 Fatura görüntüleme: http://localhost:${PORT}`);
 	console.log(
@@ -439,7 +439,7 @@ app.listen(PORT, () => {
 	);
 	console.log(`🔍 Browser durumu: GET http://localhost:${PORT}/browser-status`);
 	console.log(
-		`⚡ Runtime: Bun | OS: Ubuntu | Platform: ${process.platform} | Node.js: ${process.version}`
+		`⚡ Runtime: Node.js | OS: Ubuntu | Platform: ${process.platform} | Node.js: ${process.version}`
 	);
 	console.log(`🎯 Headless Chrome modu aktif (Google Chrome Stable)`);
 	console.log(
